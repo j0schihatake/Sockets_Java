@@ -21,39 +21,16 @@ public class Client {
         while(true){
 
             try{
-            /*
-            if(socket == null || socket != null && socket.isClosed()){
-                socket = new Socket(serverIp, serverPort);
-            }
-            */
 
             String response = client.send("Новое сообщение\n", "127.0.0.1", 16000);
             System.out.println(response);
             log.info(response);
 
-            //client.sendMessage("Новое сообщение.", socket);
-
-            //System.out.println("Сообщение с сервера: " + client.readMessage(socket));
-
-            //Client client = new Client();
-            //System.out.println("Сервер ответил: " + client.send("Новое сообщение от клиента.", "127.0.0.1", 16000));
             Thread.sleep(1000);
+
             }catch(Exception e){
                 log.error(e.getMessage());
             }
-        }
-    }
-
-    /**
-     * Создание сокета:
-     * @param hostName
-     * @param port
-     */
-    public void init(String hostName, int port){
-        try(Socket socket = new Socket(hostName, port);){
-            Client.socket = socket;
-        }catch (Exception e){
-            log.error(e.getMessage());
         }
     }
 
@@ -109,54 +86,5 @@ public class Client {
             log.error(e.getMessage());
         }
         return result.toString();
-    }
-
-
-    /**
-     * Чтение сообщения:
-     * @return
-     */
-    public String readMessage(Socket socket){
-        String result = null;
-        BufferedReader input = null;
-        try{
-            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            if(input.ready()) {
-                result = input.readLine();
-            }
-        }catch(Exception e){
-            log.error(e.getMessage());
-        }finally {
-            try {
-                if (input != null) {
-                    input.close();
-                }
-            }catch(Exception e){
-                log.error(e.getMessage());
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Отправка сообщения:
-     * @param message
-     */
-    public void sendMessage(String message, Socket socket){
-        BufferedWriter output = null;
-        try{
-            output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            output.write(message);
-            output.flush();
-        }catch(Exception e){
-            log.error(e.getMessage());
-        }finally {
-            try {
-                if(output != null)
-                    output.close();
-            }catch(Exception e){
-                log.error(e.getMessage());
-            }
-        }
     }
 }
