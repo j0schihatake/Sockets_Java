@@ -31,7 +31,7 @@ public class Server {
                     //  ServerSocket serverSocket = new ServerSocket(16000, 50, addr);
                     //  ws:localhost:16000
                     try(java.net.ServerSocket server = new java.net.ServerSocket(16000)) {
-                        log.info("Waiting for clients to connect...");
+                        log.info("Ожидание подключения клиентов...");
                         while (true) {
 
                             client = server.accept();
