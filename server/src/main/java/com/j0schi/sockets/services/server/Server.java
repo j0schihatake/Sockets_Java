@@ -1,11 +1,10 @@
 package com.j0schi.sockets.services.server;
 
-import com.j0schi.sockets.services.client.ClientServer;
+import com.j0schi.sockets.services.client.ServerSocket;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,6 +13,7 @@ import java.util.concurrent.Executors;
 @Service
 public class Server {
 
+    public java.net.ServerSocket server;
     public Socket client;
     public String message;
     private InputStream inputStream;
@@ -26,13 +26,22 @@ public class Server {
             @Override
             public void run() {
                 try {
-                    //InetAddress addr = InetAddress.getByName("127.0.0.1");
-                    ServerSocket serverSocket = new ServerSocket(16000);                // "ws:localhost:16000"
-                    //ServerSocket serverSocket = new ServerSocket(16000, 50, addr);
-                    log.info("Waiting for clients to connect...");
-                    while (true) {
-                        client = serverSocket.accept();
-                        clientProcessingPool.submit(new ClientServer(client, message));
+                    //  InetAddress addr = InetAddress.getByName("127.0.0.1");
+                    //  ServerSocket serverSocket = new ServerSocket(16000, 50, addr);
+                    //  ws:localhost:16000
+                    try(java.net.ServerSocket server = new java.net.ServerSocket(16000)) {
+                        log.info("Waiting for clients to connect...");
+                        while (true) {
+
+                            client = server.accept();
+                            log.info("Подключился клиент.");
+
+                            /**
+                             * Сервер получает и выводит сообщение от клиента,
+                             * и отправляет ответ.
+                             */
+                            clientProcessingPool.submit(new ServerSocket(client, message));
+                        }
                     }
                 } catch (IOException e) {
                     log.error("Unable to process client request" + e.getMessage());
@@ -131,5 +140,9 @@ public class Server {
         ret[2] = (byte) ((a >> 16) & 0xFF);
         ret[3] = (byte) ((a >> 24) & 0xFF);
         return ret;
+    }
+
+    public void close() throws IOException {
+        if(server!=null) server.close();
     }
 }
