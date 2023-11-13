@@ -23,7 +23,7 @@ public class ServerService {
 
         while(true){
             try {
-                //socketServer.message = getRandomMessage();
+                socketServer.message = getRandomMessage();
                 Thread.sleep(1000);
             }catch(Exception ex){
                 log.error(ex.getMessage());
@@ -35,7 +35,7 @@ public class ServerService {
      * Метод генерирует случайное сообщение:
      * @return
      */
-    public static String getRandomMessage(){
+    public String getRandomMessage(){
         String result = "";
 
         int random = getRandomNumberUsingInts(0, 7);
@@ -46,7 +46,7 @@ public class ServerService {
                 result = "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"no\"?>" +
                         "<PROTOCOL>" +
                         " <ANSWER Command=\"NULL\" Value=\"NO\" Message=\"Unknown command\" />" +
-                        "</PROTOCOL>";
+                        "</PROTOCOL>\n";
                 break;
             case 2:
             case 3:
@@ -57,14 +57,14 @@ public class ServerService {
                 result = "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"no\"?>" +
                         "<PROTOCOL>" +
                         "<EXCEPTION Message=\"xxxxxxxx\"/>" +
-                        "</PROTOCOL>";
+                        "</PROTOCOL>\n";
                 break;
         }
 
         return result;
     }
 
-    public static int getRandomNumberUsingInts(int min, int max) {
+    public int getRandomNumberUsingInts(int min, int max) {
         Random random = new Random();
         return random.ints(min, max)
                 .findFirst()

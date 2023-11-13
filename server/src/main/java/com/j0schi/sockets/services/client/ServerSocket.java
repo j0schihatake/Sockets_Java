@@ -6,9 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.*;
 import java.net.Socket;
 
-/**
- * Класс реализует работу с клиентом в отдельном потоке.
- */
 @Slf4j
 @RequiredArgsConstructor
 public class ServerSocket implements Runnable {
@@ -33,14 +30,43 @@ public class ServerSocket implements Runnable {
     }
 
     /**
+     * Создание сокета:
+     * @param hostName
+     * @param port
+     */
+    public void init(String hostName, int port){
+        try(Socket socket = new Socket(hostName, port);){
+            this.socket = socket;
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+    }
+
+    /**
+     * Буферизованное чтение.
+     * @param clientSocket
+     */
+    public String readClientMessage(Socket clientSocket){
+        StringBuilder result = new StringBuilder();
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))){
+            for(int chr = reader.read(); reader.ready(); chr = reader.read()){
+                result.append((char) chr);
+            }
+        }catch(Exception e){
+            log.error(e.getMessage());
+        }
+        return result.toString();
+    }
+
+    /**
      * Чтение сообщения:
      * @return
      */
     public String readMessage(BufferedReader input){
         try {
-            if(input.ready()) {
+            //if(input.ready()) {
                 return input.readLine();
-            }
+            //}
         }catch(Exception e){
             log.error(e.getMessage());
         }
@@ -53,9 +79,8 @@ public class ServerSocket implements Runnable {
      */
     public void sendMessage(String message, BufferedWriter output){
         try{
-            // Отправка сообщения:
             output.write(message);
-            //output.flush();
+            output.flush();
         }catch(Exception e){
             log.error(e.getMessage());
         }

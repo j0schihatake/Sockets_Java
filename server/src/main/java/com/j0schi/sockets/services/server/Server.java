@@ -1,6 +1,5 @@
 package com.j0schi.sockets.services.server;
 
-import com.j0schi.sockets.services.ServerService;
 import com.j0schi.sockets.services.client.ServerSocket;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,7 @@ public class Server {
                     //  ServerSocket serverSocket = new ServerSocket(16000, 50, addr);
                     //  ws:localhost:16000
                     try(java.net.ServerSocket server = new java.net.ServerSocket(16000)) {
-                        log.info("Ожидание подключения клиентов...");
+                        log.info("Waiting for clients to connect...");
                         while (true) {
 
                             client = server.accept();
@@ -41,7 +40,7 @@ public class Server {
                              * Сервер получает и выводит сообщение от клиента,
                              * и отправляет ответ.
                              */
-                            clientProcessingPool.submit(new ServerSocket(client, ServerService.getRandomMessage()));
+                            clientProcessingPool.submit(new ServerSocket(client, message));
                         }
                     }
                 } catch (IOException e) {

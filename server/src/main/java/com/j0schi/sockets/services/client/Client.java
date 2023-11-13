@@ -8,9 +8,9 @@ import java.net.Socket;
 @Slf4j
 public class Client {
 
-    public static String serverIp = "127.0.0.1";
+    public static Socket socket;
 
-    public static String oldMessage = "Новое сообщение";
+    public static String serverIp = "127.0.0.1";
 
     public static int serverPort = 16000;
 
@@ -21,16 +21,39 @@ public class Client {
         while(true){
 
             try{
-                String response = client.send(oldMessage, Client.serverIp, Client.serverPort);
-                if(response != null && !response.equals(""))
-                    oldMessage = response;
+            /*
+            if(socket == null || socket != null && socket.isClosed()){
+                socket = new Socket(serverIp, serverPort);
+            }
+            */
 
-                log.info(response);
+            String response = client.send("Новое сообщение\n", "127.0.0.1", 16000);
+            System.out.println(response);
+            log.info(response);
 
-                Thread.sleep(1000);
-            }catch(Exception e) {
+            //client.sendMessage("Новое сообщение.", socket);
+
+            //System.out.println("Сообщение с сервера: " + client.readMessage(socket));
+
+            //Client client = new Client();
+            //System.out.println("Сервер ответил: " + client.send("Новое сообщение от клиента.", "127.0.0.1", 16000));
+            Thread.sleep(1000);
+            }catch(Exception e){
                 log.error(e.getMessage());
             }
+        }
+    }
+
+    /**
+     * Создание сокета:
+     * @param hostName
+     * @param port
+     */
+    public void init(String hostName, int port){
+        try(Socket socket = new Socket(hostName, port);){
+            Client.socket = socket;
+        }catch (Exception e){
+            log.error(e.getMessage());
         }
     }
 
@@ -48,29 +71,92 @@ public class Client {
         BufferedWriter output = null;
 
         try{
-            socket = new Socket(hostName, port);
-
-            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            socket = new Socket(Client.serverIp, Client.serverPort);
 
             output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-
             // Отправка сообщения:
             output.write(message);
+            output.flush();
 
-            // Получение ответа:
-            //if (input.ready()) {
-                response = input.readLine();
-            //}
+            response = readClientMessage(socket);
         }catch(Exception e){
             log.error(e.getMessage());
         }finally {
             try {
-                if (input != null)
+                if(output != null)
+                    output.close();
+                if(input != null)
                     input.close();
-            }catch (Exception e){
+            }catch(Exception e){
                 log.error(e.getMessage());
             }
         }
+        log.info(response);
         return response;
+    }
+
+    /**
+     * Буферизованное чтение.
+     * @param clientSocket
+     */
+    public String readClientMessage(Socket clientSocket){
+        StringBuilder result = new StringBuilder();
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))){
+            for(int chr = reader.read(); reader.ready(); chr = reader.read()){
+                result.append((char) chr);
+            }
+        }catch(Exception e){
+            log.error(e.getMessage());
+        }
+        return result.toString();
+    }
+
+
+    /**
+     * Чтение сообщения:
+     * @return
+     */
+    public String readMessage(Socket socket){
+        String result = null;
+        BufferedReader input = null;
+        try{
+            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            if(input.ready()) {
+                result = input.readLine();
+            }
+        }catch(Exception e){
+            log.error(e.getMessage());
+        }finally {
+            try {
+                if (input != null) {
+                    input.close();
+                }
+            }catch(Exception e){
+                log.error(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Отправка сообщения:
+     * @param message
+     */
+    public void sendMessage(String message, Socket socket){
+        BufferedWriter output = null;
+        try{
+            output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            output.write(message);
+            output.flush();
+        }catch(Exception e){
+            log.error(e.getMessage());
+        }finally {
+            try {
+                if(output != null)
+                    output.close();
+            }catch(Exception e){
+                log.error(e.getMessage());
+            }
+        }
     }
 }
