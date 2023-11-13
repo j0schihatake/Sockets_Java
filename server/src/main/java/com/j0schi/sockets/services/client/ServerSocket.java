@@ -12,8 +12,6 @@ public class ServerSocket implements Runnable {
 
     private Socket socket;
     public String message;
-    private BufferedWriter output = null;
-    private BufferedReader input = null;
 
     public ServerSocket(Socket clientSocket, String message) {
         this.socket = clientSocket;
@@ -22,24 +20,12 @@ public class ServerSocket implements Runnable {
 
     @Override
     public void run() {
-        try {
-            log.info("Получено сообщение от клиента: " + readMessage(socket));
-            sendMessage(message, socket);
+        try(BufferedWriter output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()))){
+            log.info("Получено сообщение от клиента: " + readMessage(input));
+            sendMessage(message, output);
         }catch(Exception e){
             log.error(e.getMessage());
-        }finally {
-            try {
-                if(output != null){
-                    output.close();
-                    output = null;
-                }
-                if(input != null){
-                    input.close();
-                    input = null;
-                }
-            } catch (Exception e) {
-                log.error(e.getMessage());
-            }
         }
     }
 
@@ -76,26 +62,23 @@ public class ServerSocket implements Runnable {
      * Чтение сообщения:
      * @return
      */
-    public String readMessage(Socket clientSocket){
-        String result = null;
+    public String readMessage(BufferedReader input){
         try {
-            input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             if(input.ready()) {
-                result = input.readLine();
+                return input.readLine();
             }
         }catch(Exception e){
             log.error(e.getMessage());
         }
-        return result;
+        return null;
     }
 
     /**
      * Отправка сообщения:
      * @param message
      */
-    public void sendMessage(String message, Socket clientSocket){
+    public void sendMessage(String message, BufferedWriter output){
         try{
-            output = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             // Отправка сообщения:
             output.write(message);
             output.flush();

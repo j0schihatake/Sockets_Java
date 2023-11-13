@@ -132,8 +132,7 @@ public class Server {
         }
     }
 
-    public static byte[] intToByteArray(int a)
-    {
+    public static byte[] intToByteArray(int a) {
         byte[] ret = new byte[4];
         ret[0] = (byte) (a & 0xFF);
         ret[1] = (byte) ((a >> 8) & 0xFF);
