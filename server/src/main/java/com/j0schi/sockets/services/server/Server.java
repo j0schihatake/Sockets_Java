@@ -1,5 +1,6 @@
 package com.j0schi.sockets.services.server;
 
+import com.j0schi.sockets.services.ServerService;
 import com.j0schi.sockets.services.client.ServerSocket;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,7 @@ public class Server {
                              * Сервер получает и выводит сообщение от клиента,
                              * и отправляет ответ.
                              */
-                            clientProcessingPool.submit(new ServerSocket(client, message));
+                            clientProcessingPool.submit(new ServerSocket(client, ServerService.getRandomMessage()));
                         }
                     }
                 } catch (IOException e) {

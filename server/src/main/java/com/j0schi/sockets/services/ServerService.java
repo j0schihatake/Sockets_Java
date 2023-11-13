@@ -23,7 +23,7 @@ public class ServerService {
 
         while(true){
             try {
-                socketServer.message = getRandomMessage();
+                //socketServer.message = getRandomMessage();
                 Thread.sleep(1000);
             }catch(Exception ex){
                 log.error(ex.getMessage());
@@ -35,7 +35,7 @@ public class ServerService {
      * Метод генерирует случайное сообщение:
      * @return
      */
-    public String getRandomMessage(){
+    public static String getRandomMessage(){
         String result = "";
 
         int random = getRandomNumberUsingInts(0, 7);
@@ -64,7 +64,7 @@ public class ServerService {
         return result;
     }
 
-    public int getRandomNumberUsingInts(int min, int max) {
+    public static int getRandomNumberUsingInts(int min, int max) {
         Random random = new Random();
         return random.ints(min, max)
                 .findFirst()
